@@ -27,6 +27,27 @@ app.use((req, res, next) => {
   next();
 });
 
+app.post("/login", (req, res) => {
+  const { email, password } = req.body;
+  let userBack = {};
+  const sqlVerify = "SELECT * FROM users WHERE email = ? AND password = ?";
+  connection.query(sqlVerify, [email, password], (err, result) => {
+    if (err) throw err;
+    if (result.length === 0) {
+      res.json(null);
+    } else {
+      userBack = result[0];
+      console.log(userBack.idUser);
+      const sqlHobbies = "SELECT hobby, level FROM hobbies WHERE idUser = ?";
+      connection.query(sqlHobbies, [userBack.idUser], (err, results) => {
+        if (err) throw err;
+        userBack.hobbies = results;
+        res.json(userBack);
+      });
+    }
+  });
+});
+
 app.post("/addUser", (req, res) => {
   console.log(req.body);
   const { username, email, password, techno, gender, hobbies } = req.body;
